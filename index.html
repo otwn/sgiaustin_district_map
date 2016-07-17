@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
-<html class="no-js">
-<!--<![endif]-->
+<!--[if lt IE 7 ]> <html class="ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="not-ie"> <!--<![endif]-->
 
 <head>
   <meta charset="utf-8">
@@ -13,16 +12,26 @@
   <meta name="description" content="SGI-USA Austin District Map">
   <meta name="author" content="Shin Kobara, Ellen Wadsworth">
   <!-- To ensure proper rendering and touch zooming, add the viewport meta tag to your <head>. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
   <!-- 00 Edit it -->
   <title>SGI-USA Austin District Map</title>
+  <!-- bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <!-- font awesome and ionicons -->
+  <script src="https://use.fontawesome.com/2e108ebf55.js"></script>
+  <link rel="stylesheet" src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
 
-  <link rel="stylesheet" href="libs/libs.min.css">
-  <link rel="stylesheet" href="plugin/leaflet-0.7.3/leaflet.css">
-  <link rel="stylesheet" href="plugin/plugin.min.css">
-  <link rel="stylesheet" href="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/1.0.0-rc.4/esri-leaflet-geocoder.css">
-  <link rel="stylesheet" href="css/bootmap.min.css">
+  <!-- leaflet and esri-leaflet plugin -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/leaflet/1.0.0-rc.1/leaflet.css" />
+  <link rel="stylesheet" href="plugin/Leaflet.groupedlayercontrol/dist/leaflet.groupedlayercontrol.min.css" />
+  <link rel="stylesheet" href="plugin/leaflet-locatecontrol/dist/L.Control.Locate.min.css" />
+  <link rel="stylesheet" href="plugin/Leaflet.ExtraMarkers/dist/css/leaflet.extra-markers.min.css" />
+  <link rel="stylesheet" href="plugin/leaflet.defaultextent.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/leaflet.esri.geocoder/2.1.0/esri-leaflet-geocoder.css" />
+
+  <!-- main css -->
+  <link rel="stylesheet" href="css/bootmap.min.css" />
 
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="76x76" href="images/favicon-76.png">
@@ -51,24 +60,13 @@
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a href="index.html" data-toggle="collapse" data-target=".navbar-collapse.in" id="timeline-btn"><i class="fa fa-map-marker white"></i>&nbsp;&nbsp;Drag&Click</a>
-          </li>
           <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="panel-btn"><i class="fa fa-columns white"></i>&nbsp;&nbsp;Panel</a>
           </li>
-          <li class="dropdown" id="toolList">
-            <a id="toolsDrop" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-wrench white"></i>&nbsp;&nbsp;Tools <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="#" id="print-btn"><i class="fa fa-print"></i> Print</a>
-              </li>
-              <li>
-                <a href="#" id="tools-btn"><i class="fa fa-edit"></i> Map Tools</a>
-              </li>
-            </ul>
+          <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a>
           </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a>
-          </li>
+          <!-- right -->
         </ul>
       </div>
       <!--/.navbar-collapse -->
@@ -152,20 +150,18 @@
         <div class="modal-body" id="weather-info">
           <ul class="nav nav-tabs" id="weatherTabs">
             <!-- 07 Rename it if needed -->
-            <li class="active"><a href="#latlngTab" data-toggle="tab"><i class="fa fa-map-marker"></i>&nbsp;Coordinates</a>
+            <li class="active"><a href="#weatherTab" data-toggle="tab"><i class="fa fa-sun-o"></i>&nbsp;Weather</a>
             </li>
-            <li><a href="#weatherTab" data-toggle="tab"><i class="fa fa-sun-o"></i>&nbsp;Weather</a>
+            <li><a href="#latlngTab" data-toggle="tab"><i class="fa fa-map-marker"></i>&nbsp;Coordinates</a>
             </li>
+
           </ul>
           <div class="tab-content" id="locationTab">
-            <div class="tab-pane fade active in" id="latlngTab">
-              <div id="latlng_div"></div>
-              <br />
-              <br />
-              <div class="clip_button">Copy to Clipboard (address)</div>
-            </div>
-            <div class="tab-pane fade in" id="weatherTab">
+            <div class="tab-pane fade active in" id="weatherTab">
               <div id="weather_div"></div>
+            </div>
+            <div class="tab-pane fade in" id="latlngTab">
+              <div id="latlng_div"></div>
             </div>
           </div>
         </div>
@@ -210,36 +206,33 @@
         <div class="modal-body">
           <ul class="nav nav-tabs" id="aboutTabs">
             <!-- 07 Rename it if needed -->
-            <li class="active"><a href="#disclaimer" data-toggle="tab"><i class="fa fa-exclamation-circle"></i>&nbsp;Disclaimer</a>
+            <li class="active"><a href="#howto" data-toggle="tab"><i class="fa fa-info-circle"></i>&nbsp;How to</a>
             </li>
-            <li><a href="#plugins" data-toggle="tab"><i class="fa fa-globe"></i>&nbsp;Plugins</a>
+            <li><a href="#disclaimer" data-toggle="tab"><i class="fa fa-exclamation-circle"></i>&nbsp;Disclaimer</a>
             </li>
             <li><a href="#contacts" data-toggle="tab"><i class="fa fa-envelope"></i>&nbsp;Contacts</a>
             </li>
           </ul>
           <div class="tab-content" id="aboutTabsContent">
+            <!-- How-to -->
+            <div id="howto" class="tab-pane fade active in">
+              <p>How to find your district?</p>
+              <p>
+                <ol type="1">
+                 <li><i class="fa fa-search fa-2x" aria-hidden="true"></i>
+                 &nbsp; Click Search Icon and Type your address <br /></li>
+                 <li><img src="images/geocoding.jpg" height="133" width="200"/> &nbsp; Select your address <br /></li>
+                 <li><img src="images/geocoding_result.jpg" height="133" width="200" /> &nbsp; Click 'blue-colored area'<br /></li>
+               </ol>
+              </p>
+            </div>
             <!-- Disclaimer -->
-            <div id="disclaimer" class="tab-pane fade active in text-danger">
+            <div id="disclaimer" class="tab-pane fade in text-danger">
               <p>All products published on this website are prototype products and are not intended to be used for navigational or operational purposes. With respect to information available from this website, neither SGI-USA nor any of its members, employees
                 or agents makes any warranty, expressed or implied, including merchantability and fitness for a particular purpose, or assumes any legal liability or responsibility for the accuracy, completeness or usefulness of any information, apparatus,
                 product or process disclosed, or represents that its use does not infringe privately owned rights. The user of these data and products assumes the entire risk related to use of these date and this web site. In no event will SGI-USA, its
                 agents, employees or members be liable to a user or any third party for any direct, indirect, incidental, consequential, special or exemplary damages, loss of life or lost profits resulting from any use, misuse or reliance on any of the
                 data or information appearing on this website.</p>
-            </div>
-            <!-- Plugin Information -->
-            <div class="tab-pane fade" id="plugins">
-              <div class="panel panel-primary">
-                <div class="panel-heading">Features</div>
-                <ul class="list-group">
-                  <li class="list-group-item">Lightweight map application with <a href="http://leafletjs.com/" target="_blank">Leaflet</a></li>
-                  <li class="list-group-item">Fullscreen mobile-friendly map with responsive navbar and modal placeholders using <a href="http://getbootstrap.com" target="_blank">Bootstrap</li>
-                  <li class="list-group-item"><a href="http://dsjs.org" target="_blank">D3</a> loading of external GeoJSON/CSV files</li>
-                  <li class="list-group-item">Elegant client-side multi-layer feature search with autocomplete using <a href="http://twitter.github.io/typeahead.js/" target="_blank">typeahead.js</a>
-                  </li>
-                  <li class="list-group-item">Responsive sidebar feature list synced with map bounds, which includes sorting and filtering via <a href="http://listjs.com/" target="_blank">list.js</a>
-                  </li>
-                </ul>
-              </div>
             </div>
             <!-- Contacts -->
             <div class="tab-pane fade" id="contacts">
@@ -263,24 +256,35 @@
 
 
   <!-- base js: jquery, jquery-ui, bootstrap, d3, moment -->
-  <script src="plugin/leaflet-0.7.3/leaflet.js"></script>
-  <script src="libs/libs.main.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>  <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 
-  <!-- additional js: jquery-ui, query -->
-  <script src="libs/typeahead.bundle.min.js"></script>
-  <script src="libs/list.min.js"></script>
-  <script src="libs/highstock/js/highstock.js"></script>
-  <script src="libs/highstock/js/themes/sand-signika.js"></script>
-  <script src="libs/zc/ZeroClipboard.js"></script>
+  <!-- additional js: query, list, clipboard -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.2.0/list.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.2.0/ZeroClipboard.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js"></script>
 
-  <!-- map base js: leaflet plubins -->
-  <script src="plugin/esri-leaflet/esri-leaflet.js"></script>
-  <script src="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/1.0.0-rc.4/esri-leaflet-geocoder.js"></script>
-  <script src="plugin/plugin.multi.min.js"></script>
+  <!-- map base js: leaflet -->
+  <script src="https://cdn.jsdelivr.net/leaflet/1.0.0-rc.1/leaflet.js"></script>
 
-  <script src="http://d3js.org/topojson.v1.min.js"></script>
-  <script src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
-  <script src="plugin/leaflet-plugins-master/layer/tile/Google.js"></script>
+  <!-- Load Esri Leaflet locally, after cloning this repository -->
+  <script src="https://cdn.jsdelivr.net/leaflet.esri/2.0.1/esri-leaflet.js"></script>
+  <script src="plugin/leaflet-locatecontrol/dist/L.Control.Locate.min.js"></script>
+  <script src="plugin/Leaflet.ExtraMarkers/dist/js/leaflet.extra-markers.min.js"></script>
+  <script src="plugin/Leaflet.groupedlayercontrol/dist/leaflet.groupedlayercontrol.min.js"></script>
+  <script src="plugin/leaflet.defaultextent.js"></script>
+  <script src="https://cdn.jsdelivr.net/leaflet.esri.geocoder/2.1.0/esri-leaflet-geocoder.js"></script>
+  <script src="libs/spin.min.js"></script>
+  <script src="plugin/Leaflet.Spin/leaflet.spin.js"></script>
+
+  <!-- weather -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js"></script>
 
   <!-- custom js -->
   <script src="js/bootmap.min.js"></script>

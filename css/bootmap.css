@@ -210,6 +210,11 @@ input[type="radio"], input[type="checkbox"] {
   font-size:11px;
   line-height:18px;
   border-radius:2px;
+  z-index: 2000;
+}
+
+.tab-content{
+  padding: 5px;
 }
 
 .clip_button {
@@ -221,10 +226,6 @@ input[type="radio"], input[type="checkbox"] {
 }
 .clip_button.zeroclipboard-is-hover { background-color: #eee; }
 .clip_button.zeroclipboard-is-active { background-color: #aaa; }
-
-/* kml_dl image size */
-a.link img{vertical-align:middle;height:35px;width:35px}
-
 
 @media (max-width: 992px) {
   .navbar .navbar-brand {

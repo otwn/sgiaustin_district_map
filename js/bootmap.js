@@ -10,6 +10,36 @@ app.title = "SGI Austin TX District Map";
 app.html = "http://sgiusaaustin.org";
 app.desc = "District/Chapter boundary map";
 
+// ================================================================
+/* Navigator and Side bar */
+// ================================================================
+$("#nav-btn").click(function() {
+  $(".navbar-collapse").collapse("toggle");
+  return false;
+});
+$("#sidebar-toggle-btn").click(function() {
+  $("#sidebar").toggle();
+  map.invalidateSize();
+  return false;
+});
+$("#sidebar-hide-btn").click(function() {
+  $('#sidebar').hide();
+  map.invalidateSize();
+});
+$("#panel-btn").click(function() {
+  $('#sidebar').toggle();
+  map.invalidateSize();
+  return false;
+});
+// ================================================================
+// Modal - About, Checklist, Feature
+// ================================================================
+$("#about-btn").click(function() {
+  $("#aboutModal").modal("show");
+  $(".navbar-collapse.in").collapse("hide");
+  return false;
+});
+
 /* Layer Size */
 // ================================================================
 $(window).resize(function() {
@@ -35,65 +65,46 @@ map = L.map("map", {
   zoomControl: false,
   scrollWheelZoom: true,
   zoom: 10,
-  center: [30.34761, -97.7147],
-  attributionControl: false
+  center: [30.34761, -97.7147]
+//  attributionControl: false
 });
-//var initBase = L.esri.basemapLayer('Topographic').addTo(map);
-startLoading(); // start loading icon
+//startLoading(); // start loading icon
 
 // ================================================================
 // Basemap Layers
 // ================================================================
 //TODO (4) Edit initial basemap if necessary
-var mapquestOSM = L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
-  maxZoom: 20,
-  subdomains: ["otile1", "otile2", "otile3", "otile4"],
-  attribution: 'Tiles courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">. Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA.'
+var osMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 });
-var mapquestHYB = L.layerGroup([L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg", {
-  maxZoom: 20,
-  subdomains: ["oatile1", "oatile2", "oatile3", "oatile4"]
-}), L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/hyb/{z}/{x}/{y}.png", {
-  maxZoom: 20,
-  subdomains: ["oatile1", "oatile2", "oatile3", "oatile4"],
-  attribution: 'Labels courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">. Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA. Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency | Points data from <a href="http://galvbay.org">galvbay.org</a>'
-})]);
-var esriOcean = L.layerGroup([L.esri.tiledMapLayer("http://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer", {
-  attribution: '&copy; <a href="http://www.esri.com/">Esri</a>, GEBCO, NOAA, National Geographic, DeLorme, HERE, Geonames.org, and other contributors| Points data from <a href="http://galvbay.org">galvbay.org</a>'
-}), L.esri.tiledMapLayer("http://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer", {
-  attribution: '&copy; <a href="http://www.esri.com/">Esri</a>, GEBCO, NOAA, National Geographic, DeLorme, HERE, Geonames.org, and other contributors| Points data from <a href="http://galvbay.org">galvbay.org</a>'
-})]);
-var esriTopo = L.esri.tiledMapLayer("http://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer", {
-  attribution: '&copy; <a href="http://www.esri.com/">Esri</a>, HERE, DeLorme, TomTom, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), swisstopo, MapmyIndia, © OpenStreetMap contributors, GIS User Comm. | Points data from <a href="http://galvbay.org">galvbay.org</a>'
+var esriTopo = L.esri.tiledMapLayer({
+  url: 'https://services.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer',
+  maxZoom: 15
 });
-var esriImage = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: '&copy; <a href="http://www.esri.com/">Esri</a>, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community | Points data from <a href="http://galvbay.org">galvbay.org</a>',
-  maxZoom: 18,
-});
+var esriImage = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
 var cartodb_light = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-  attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a> | Points data from <a href="http://galvbay.org">galvbay.org</a>',
+  attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
   maxZoom: 18
 });
 var cartodb_dark = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-  attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a> | Points data from <a href="http://galvbay.org">galvbay.org</a>',
+  attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
   maxZoom: 18
 });
-var ggl = new L.Google();
-var ggl2 = new L.Google('TERRAIN');
+var mapboxtoken = 'pk.eyJ1Ijoic2dpdXNhYXVzdGluIiwiYSI6ImNpcXB1amViMjAyamRmbm5uejc1M2llYm0ifQ.LQQZ5t-oK4xMAqyjc3R-Mw';
+var mapbox = L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token=' + mapboxtoken, {
+  attribution: 'Map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors. Tiles from <a href="https://www.mapbox.com">Mapbox</a>.'
+})
 
 /* grouping basemap layers */
 var baseLayers = {
-  "Street Map": mapquestOSM,
   "Light": cartodb_light,
   "Dark": cartodb_dark,
-  "Imagery with Streets": mapquestHYB,
   "Esri World Imagery": esriImage,
-  //"Ocean": esriOcean,
   "Topography": esriTopo,
-  "Google": ggl,
-  'Google Terrain': ggl2
+  "Open Street Map": osMap,
+  "Mapbox Street": mapbox
 };
-map.addLayer(mapquestOSM);
+map.addLayer(mapbox);
 
 // Leaflet Map Functions
 // Zoom control (bottom right)
@@ -101,19 +112,28 @@ map.addLayer(mapquestOSM);
 var zoomControl = L.control.zoom({
   position: "bottomright"
 }).addTo(map);
+
 // Home button - back to default extent (bottom right)
 // ================================================================
 L.control.defaultExtent({
   position: "bottomright"
 }).addTo(map);
+
+// ================================================================
+// Map Tools Settings
+// ================================================================
+// Lat Long
+var mousemove = document.getElementById('mousemove');
+map.on('mousemove', function(e) {
+  //console.log('checking');
+  window[e.type].innerHTML = e.latlng.toString() + " Zoom:" + map.getZoom();
+});
+
 // GPS enabled geolocation control set to follow the user's location (bottom right)
 // ================================================================
 var locateControl = L.control.locate({
   position: "bottomright",
-  drawCircle: true,
-  follow: true,
-  setView: true,
-  keepCurrentZoomLevel: true,
+  //keepCurrentZoomLevel: true,
   markerStyle: {
     weight: 1,
     opacity: 0.8,
@@ -124,114 +144,35 @@ var locateControl = L.control.locate({
     clickable: false
   },
   icon: "fa fa-map-marker",
-  metric: false,
   strings: {
     title: "My location", // title of the locate control
     metersUnit: "meters",
     feetUnit: "feet",
     popup: "You are within {distance} {unit} from this point",
     outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
-  },
-  locateOptions: {
-    maxZoom: 17,
-    watch: true,
-    enableHighAccuracy: true,
-    maximumAge: 10000,
-    timeout: 10000
   }
 }).addTo(map);
-map.on('dragstart', locateControl._stopFollowing, locateControl);
-// leaflet draw (top left corner)
-// ================================================================
-var drawnItems = L.featureGroup().addTo(map);
-map.addControl(new L.Control.Draw({
-  edit: {
-    featureGroup: drawnItems
-  }
-}));
-map.on('draw:created', function(event) {
-  var layer = event.layer;
-  drawnItems.addLayer(layer);
-});
-// leaflet Measurement
-// ================================================================
-L.Control.measureControl().addTo(map);
-/* leaflet filelayer (load local files suc as GeoJSON, GPX, KML) */
-// ================================================================
-L.Control.FileLayerLoad.LABEL = '<i class="fa fa-folder-open"></i>';
-L.Control.fileLayerLoad({
-  fitBounds: true,
-  layerOptions: {
-    style: {
-      color: 'red',
-      opacity: 1.0,
-      fillOpacity: 1.0,
-      weight: 2,
-      clickable: false
-    }
-  },
-  // File size limit in kb (default: 1024) ?
-  fileSizeLimit: 1024,
-  // Restrict accepted file formats (default: .geojson, .kml, and .gpx) ?
-  formats: [
-    '.geojson',
-    '.kml'
-  ]
-}).addTo(map);
-//$('.leaflet-control-filelayer').hide();
-$('.leaflet-top.leaflet-left').hide();
 
-// esri geocode
-var geoSearchControl = new L.esri.Geocoding.Controls.Geosearch({
-  position: 'bottomright',
-  providers: [
-    new L.esri.Geocoding.Controls.Geosearch.Providers.FeatureLayer({
-      url: '//services.arcgis.com/uCXeTVveQzP4IIcx/arcgis/rest/services/gisday/FeatureServer/0/',
-      searchFields: ['Name', 'Organization'],
-      label: 'GIS Day Events',
-      bufferRadius: 5000,
-      formatSuggestion: function(feature) {
-        return feature.properties.Name + ' - ' + feature.properties.Organization;
-      }
-    })
-  ]
+// Geocoding using ArcGIS Online
+var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
+var geosearchControl = L.esri.Geocoding.geosearch({
+  providers: [arcgisOnline],
+  position: "topleft"
 }).addTo(map);
-var results = new L.LayerGroup().addTo(map);
-geoSearchControl.on('results', function(data) {
-  results.clearLayers();
-  for (var i = data.results.length - 1; i >= 0; i--) {
-    results.addLayer(L.marker(data.results[i].latlng));
-    // move weatherMarker to the center
-    weatherMarker.setLatLng(
-      data.results[i].latlng
-    );
-    onDragEnd();
-  }
-  console.log('geocoding!');
-});
+// create an empty layer group to store the results and add it to the map
+var results = L.layerGroup().addTo(map);
 
-// ================================================================
-/* Attribution control (bottom right. Order:bottom to top) */
-// ================================================================
-function updateAttribution(e) {
-  $.each(map._layers, function(index, layer) {
-    if (layer.getAttribution) {
-      $("#attribution").html((layer.getAttribution()));
+// listen for the results event and add every result to the map
+geosearchControl.on("results", function(data) {
+    results.clearLayers();
+    for (var i = data.results.length - 1; i >= 0; i--) {
+        results.addLayer(L.marker(data.results[i].latlng));
+
+        // move weatherMarker to the center
+        weatherMarker.setLatLng(data.results[i].latlng);
+        onDragEnd();
     }
-  });
-}
-map.on("layeradd", updateAttribution);
-map.on("layerremove", updateAttribution);
-var attributionControl = L.control({
-  position: "bottomleft"
 });
-attributionControl.onAdd = function(map) {
-  var div = L.DomUtil.create("div", "leaflet-control-attribution");
-  //TODO (3) Edit bottom-left Attribution information
-  div.innerHTML = "<span class='hidden-xs'><a href='http://products.gcoos.org' target='_blank'>GCOOS</a> | </span><a href='#' onclick='$(\"#attributionModal\").modal(\"show\"); return false;'>Attribution</a>";
-  return div;
-};
-map.addControl(attributionControl);
 
 //=================================================================
 // Weather Info from Forecast.io
@@ -267,11 +208,11 @@ function onDragEnd() {
   var address;
   $.ajax({
     // forecast.io based on shin.kobara@gmail.com
-    url: "https://api.forecast.io/forecast/fce73211ba8678302a5ce7b9732703aa/" + m.lat + "," + m.lng,
+    url: "https://api.forecast.io/forecast/97623ae781a11fd55f315cd4ffb61f96/" + m.lat + "," + m.lng,
     dataType: "jsonp",
     success: function(pjson) { //prased json data
       //console.log(pjson);
-      L.esri.Geocoding.Tasks.reverseGeocode().latlng([m.lat, m.lng]).run(function(error, result) {
+      L.esri.Geocoding.reverseGeocode().latlng([m.lat, m.lng]).run(function(error, result) {
         if (result) {
           address = result.address.Match_addr;
         } else {
@@ -286,16 +227,14 @@ function onDragEnd() {
       console.warn(thrownError);
     }
   });
-
   // ================================================================
   // Copy to ClipBoard
   // ================================================================
   var client = new ZeroClipboard($('.clip_button'));
-  client.on('ready', function(event) {
+  client.on('ready', function(readyEvent) {
     client.on('copy', function(event) {
       //var clip = m.lng.toFixed(5)+","+m.lat.toFixed(5);
       var clip = address;
-      //console.log(clip);
       event.clipboardData.setData('text/plain', clip);
     });
     client.on("aftercopy", function(event) {
@@ -306,7 +245,7 @@ function onDragEnd() {
     // console.log( 'ZeroClipboard error of type "' + event.name + '": ' + event.message );
     ZeroClipboard.destroy();
   });
-}
+};
 
 // ================================================================
 // Layer Controls - Highlight
@@ -326,7 +265,6 @@ var highlightStyle = {
     fillOpacity: 0.65,
     fillColor: '#2262CC'
 };
-
 // ================================================================
 // geojson layer
 // ================================================================
@@ -359,7 +297,6 @@ var dataJSON = L.geoJson(null, {
     })
   }
 });
-
 
 // ================================================================
 // Main loader
@@ -406,7 +343,6 @@ function syncSidebar() {
     order: "asc"
   });
 }
-
 function sidebarClick(id) {
   var layer = dataJSON.getLayer(id);
   //console.log(layer);
@@ -417,7 +353,9 @@ function sidebarClick(id) {
     map.invalidateSize();
   }
 }
-
+// ================================================================
+// Side Panel Mouse Function
+// ================================================================
 $(document).on("click", ".feature-row", function(e) {
   //$(document).off("mouseout", ".feature-row", clearHighlight);
   sidebarClick(parseInt($(this).attr("id")));
@@ -432,9 +370,8 @@ $(document).on("mouseout", ".feature-row", function(e){
 /* Filter sidebar feature list to only show features in current map bounds */
 map.on("moveend", function (e) {
   syncSidebar();
-  console.log("sync side bar.");
+  //console.log("sync side bar.");
 });
-
 
 // ================================================================
 /* Larger screens get expanded layer control and visible sidebar */
@@ -447,7 +384,6 @@ if (document.body.clientWidth <= 767) {
 var layerControl = L.control.groupedLayers(baseLayers, groupedOverlay, {
   //collapsed: isCollapsed
 }).addTo(map);
-
 // ================================================================
 // Leaflet patch to make layer control scrollable on touch browsers
 // ================================================================
@@ -459,72 +395,3 @@ if (!L.Browser.touch) {
 } else {
   L.DomEvent.disableClickPropagation(container);
 }
-
-// ================================================================
-/* Navigator and Side bar */
-// ================================================================
-$("#nav-btn").click(function() {
-  $(".navbar-collapse").collapse("toggle");
-  return false;
-});
-$("#sidebar-toggle-btn").click(function() {
-  $("#sidebar").toggle();
-  map.invalidateSize();
-  return false;
-});
-$("#sidebar-hide-btn").click(function() {
-  $('#sidebar').hide();
-  map.invalidateSize();
-});
-$("#panel-btn").click(function() {
-  $('#sidebar').toggle();
-  map.invalidateSize();
-  return false;
-});
-
-// ================================================================
-// Map Tools Settings
-// ================================================================
-/* Print */
-$("#print-btn").click(function() {
-  $("#map").print({
-    stylesheet: "../css/bootmap.css"
-  });
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
-/* Map Tools - all top left tools */
-$("#tools-btn").click(function() {
-  $('.leaflet-top.leaflet-left').toggle();
-  return false;
-});
-/* Draw Tools */
-$("#draw-btn").click(function() {
-  $('.leaflet-draw').toggle();
-  return false;
-});
-/* Distance measurement (require Leaflet.Draw) */
-$("#distance-btn").click(function() {
-  $('.leaflet-control-draw-measure').toggle();
-  return false;
-});
-/* Upload tool */
-$("#upload-btn").click(function() {
-  $('.leaflet-control-filelayer').toggle();
-  return false;
-});
-// Lat Long
-var mousemove = document.getElementById('mousemove');
-map.on('mousemove', function(e) {
-  //console.log('checking');
-  window[e.type].innerHTML = e.latlng.toString() + " Zoom:" + map.getZoom();
-});
-
-// ================================================================
-// Modal - About, Checklist, Feature
-// ================================================================
-$("#about-btn").click(function() {
-  $("#aboutModal").modal("show");
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
