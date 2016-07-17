@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="Cache-control" content="public">
+  <meta name="description" content="SGI-USA Austin District Map">
+  <meta name="author" content="Shin Kobara, Ellen Wadsworth">
+  <!-- To ensure proper rendering and touch zooming, add the viewport meta tag to your <head>. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- 00 Edit it -->
+  <title>SGI-USA Austin District Map</title>
+
+  <link rel="stylesheet" href="libs/libs.min.css">
+  <link rel="stylesheet" href="plugin/leaflet-0.7.3/leaflet.css">
+  <link rel="stylesheet" href="plugin/plugin.min.css">
+  <link rel="stylesheet" href="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/1.0.0-rc.4/esri-leaflet-geocoder.css">
+  <link rel="stylesheet" href="css/bootmap.min.css">
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="76x76" href="images/favicon-76.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="images/favicon-120.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="images/favicon-152.png">
+  <link rel="icon" sizes="196x196" href="images/favicon-196.png">
+
+</head>
+
+<body class="application">
+  <!--[if lt IE 7]>
+        <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+    <![endif]-->
+
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <div class="navbar-icon-container">
+          <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
+          <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-columns fa-lg white"></i></a>
+        </div>
+        <a class="navbar-brand" href="http://sgiusaaustin.org/">
+          <!-- 01 Rename it -->
+          SGI-USA Austin
+        </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="index.html" data-toggle="collapse" data-target=".navbar-collapse.in" id="timeline-btn"><i class="fa fa-map-marker white"></i>&nbsp;&nbsp;Drag&Click</a>
+          </li>
+          <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="panel-btn"><i class="fa fa-columns white"></i>&nbsp;&nbsp;Panel</a>
+          </li>
+          <li class="dropdown" id="toolList">
+            <a id="toolsDrop" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-wrench white"></i>&nbsp;&nbsp;Tools <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="#" id="print-btn"><i class="fa fa-print"></i> Print</a>
+              </li>
+              <li>
+                <a href="#" id="tools-btn"><i class="fa fa-edit"></i> Map Tools</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="about-btn"><i class="fa fa-question-circle white"></i>&nbsp;&nbsp;About</a>
+          </li>
+        </ul>
+      </div>
+      <!--/.navbar-collapse -->
+    </div>
+  </div>
+
+  <div id="container">
+    <div id="sidebar">
+      <div class="sidebar-wrapper">
+        <div class="panel panel-default" id="features">
+          <div class="panel-heading">
+            <h3 class="panel-title">Districts List
+              <button type="button" class="btn btn-xs btn-default pull-right" id="sidebar-hide-btn"><i class="fa fa-chevron-left"></i>
+              </button>
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-8 col-md-8">
+                <input type="text" class="form-control search" placeholder="Filter by Name" />
+              </div>
+              <div class="col-xs-4 col-md-4">
+                <button type="button" class="btn btn-primary pull-right sort" data-sort="feature-name" id="sort-btn"><i class="fa fa-sort"></i>&nbsp;&nbsp;Sort</button>
+              </div>
+            </div>
+          </div>
+          <div class="sidebar-table">
+            <table class="table table-hover" id="feature-list">
+              <thead class="hidden">
+                <tr>
+                  <th>Icon</th>
+                  <tr>
+                    <tr>
+                      <th>Name</th>
+                      <tr>
+                        <tr>
+                          <th>Chevron</th>
+                          <tr>
+              </thead>
+              <tbody class="list"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div id='coordinates' class='ui-coordinates'>
+      <code id='mousemove'></code>
+      <br/>
+    </div>
+  </div>
+
+  <!-- Popup Window View -->
+  <div class="modal fade" id="featureModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title text-primary" id="feature-title"></h4>
+        </div>
+        <div class="modal-body" id="feature-info">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+  <!-- Weather Window View -->
+  <div class="modal fade" id="weatherModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title text-primary" id="weather-title">Location Info</h4>
+        </div>
+        <div class="modal-body" id="weather-info">
+          <ul class="nav nav-tabs" id="weatherTabs">
+            <!-- 07 Rename it if needed -->
+            <li class="active"><a href="#latlngTab" data-toggle="tab"><i class="fa fa-map-marker"></i>&nbsp;Coordinates</a>
+            </li>
+            <li><a href="#weatherTab" data-toggle="tab"><i class="fa fa-sun-o"></i>&nbsp;Weather</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="locationTab">
+            <div class="tab-pane fade active in" id="latlngTab">
+              <div id="latlng_div"></div>
+              <br />
+              <br />
+              <div class="clip_button">Copy to Clipboard (address)</div>
+            </div>
+            <div class="tab-pane fade in" id="weatherTab">
+              <div id="weather_div"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+  <!-- Attribution -->
+  <div class="modal fade" id="attributionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">
+            <!-- 05 Rename it -->
+            Developed by Shin Kobara
+          </h4>
+        </div>
+        <div class="modal-body">
+          <div id="attribution"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.modal -->
+
+  <!-- About Modal -->
+  <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!-- 06 Rename it -->
+          <h4 class="modal-title">About</h4>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs" id="aboutTabs">
+            <!-- 07 Rename it if needed -->
+            <li class="active"><a href="#disclaimer" data-toggle="tab"><i class="fa fa-exclamation-circle"></i>&nbsp;Disclaimer</a>
+            </li>
+            <li><a href="#plugins" data-toggle="tab"><i class="fa fa-globe"></i>&nbsp;Plugins</a>
+            </li>
+            <li><a href="#contacts" data-toggle="tab"><i class="fa fa-envelope"></i>&nbsp;Contacts</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="aboutTabsContent">
+            <!-- Disclaimer -->
+            <div id="disclaimer" class="tab-pane fade active in text-danger">
+              <p>All products published on this website are prototype products and are not intended to be used for navigational or operational purposes. With respect to information available from this website, neither SGI-USA nor any of its members, employees
+                or agents makes any warranty, expressed or implied, including merchantability and fitness for a particular purpose, or assumes any legal liability or responsibility for the accuracy, completeness or usefulness of any information, apparatus,
+                product or process disclosed, or represents that its use does not infringe privately owned rights. The user of these data and products assumes the entire risk related to use of these date and this web site. In no event will SGI-USA, its
+                agents, employees or members be liable to a user or any third party for any direct, indirect, incidental, consequential, special or exemplary damages, loss of life or lost profits resulting from any use, misuse or reliance on any of the
+                data or information appearing on this website.</p>
+            </div>
+            <!-- Plugin Information -->
+            <div class="tab-pane fade" id="plugins">
+              <div class="panel panel-primary">
+                <div class="panel-heading">Features</div>
+                <ul class="list-group">
+                  <li class="list-group-item">Lightweight map application with <a href="http://leafletjs.com/" target="_blank">Leaflet</a></li>
+                  <li class="list-group-item">Fullscreen mobile-friendly map with responsive navbar and modal placeholders using <a href="http://getbootstrap.com" target="_blank">Bootstrap</li>
+                  <li class="list-group-item"><a href="http://dsjs.org" target="_blank">D3</a> loading of external GeoJSON/CSV files</li>
+                  <li class="list-group-item">Elegant client-side multi-layer feature search with autocomplete using <a href="http://twitter.github.io/typeahead.js/" target="_blank">typeahead.js</a>
+                  </li>
+                  <li class="list-group-item">Responsive sidebar feature list synced with map bounds, which includes sorting and filtering via <a href="http://listjs.com/" target="_blank">list.js</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- Contacts -->
+            <div class="tab-pane fade" id="contacts">
+              <!-- 15 Edit it including email address -->
+              <p>Any feedback is appreciated:
+              </p>
+              <p>Map Creator: <a href='mailto:shin.kobara@gmail.com?Subject=SGI-USA District Map' target="_top">Shin Kobara</a></p>
+              <p>District Polygons Creater: Ellen Wadsworth</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+
+  <!-- base js: jquery, jquery-ui, bootstrap, d3, moment -->
+  <script src="plugin/leaflet-0.7.3/leaflet.js"></script>
+  <script src="libs/libs.main.min.js"></script>
+
+  <!-- additional js: jquery-ui, query -->
+  <script src="libs/typeahead.bundle.min.js"></script>
+  <script src="libs/list.min.js"></script>
+  <script src="libs/highstock/js/highstock.js"></script>
+  <script src="libs/highstock/js/themes/sand-signika.js"></script>
+  <script src="libs/zc/ZeroClipboard.js"></script>
+
+  <!-- map base js: leaflet plubins -->
+  <script src="plugin/esri-leaflet/esri-leaflet.js"></script>
+  <script src="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/1.0.0-rc.4/esri-leaflet-geocoder.js"></script>
+  <script src="plugin/plugin.multi.min.js"></script>
+
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
+  <script src="plugin/leaflet-plugins-master/layer/tile/Google.js"></script>
+
+  <!-- custom js -->
+  <script src="js/bootmap.min.js"></script>
+
+</body>
+
+</html>
